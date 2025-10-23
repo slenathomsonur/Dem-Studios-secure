@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dem Studios - Secure Access</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            animation: fadeIn 1.5s ease;
+        }
+        
+        .logo {
+            font-size: 4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4d96ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 300% 300%;
+            animation: metallic 3s ease infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        @keyframes metallic {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            letter-spacing: 2px;
+            color: #a0a0e0;
+        }
+        
+        .panel {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5),
+                        0 0 50px rgba(100, 100, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 100, 255, 0.2);
+            animation: slideUp 1s ease;
+            margin-bottom: 30px;
+        }
+        
+        .panel-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ffd93d;
+        }
+        
+        .scanner-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .scanner-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .info-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .scanner-placeholder {
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 2px dashed rgba(100, 100, 255, 0.5);
+        }
+        
+        .scanner-frame {
+            width: 80%;
+            height: 80%;
+            border: 3px solid #ff6b6b;
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+        
+        .scanner-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff6b6b, transparent);
+            animation: scan 2s linear infinite;
+        }
+        
+        .scanner-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+        
+        .video-container {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        #qr-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #qr-canvas {
+            display: none;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            color: #0f0c29;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.5);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #4d96ff, #6bcf7f);
+            box-shadow: 0 5px 15px rgba(77, 150, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(77, 150, 255, 0.5);
+        }
+        
+        .btn-tertiary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-tertiary:hover {
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            color: #a0a0e0;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(100, 100, 255, 0.5);
+        }
+        
+        .status-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            font-weight: 600;
+        }
+        
+        .success {
+            background: rgba(46, 204, 113, 0.3);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+        }
+        
+        .error {
+            background: rgba(231, 76, 60, 0.3);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            color: #a0a0e0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+        
+        .valid-ids {
+            margin-top: 20px;
+        }
+        
+        .id-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+            border-left: 4px solid #ffd93d;
+            transition: transform 0.3s ease;
+        }
+        
+        .id-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .id-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ffd93d;
+        }
+        
+        .id-role {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            color: #a0a0e0;
+        }
+        
+        .warning {
+            color: #ff6b6b;
+            font-weight: bold;
+            margin: 15px 0;
+            text-align: center;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+        
+        .portal-container {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 15px;
+            display: none;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .welcome-message {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .welcome-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: #a0a0e0;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .controls .btn {
+            flex: 1;
+        }
+        
+        .scanner-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .scanner-controls .btn {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .panel {
+                padding: 25px;
+            }
+            
+            .scanner-container {
+                flex-direction: column;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .scanner-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- QR Scanner Section -->
+        <div class="scanner-section" id="scannerSection">
+            <div class="header">
+                <div class="logo">Dem Studios</div>
+                <div class="subtitle">SECURE QR ACCESS SYSTEM</div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-title">Scan Your QR Code</div>
+                
+                <div class="scanner-container">
+                    <div class="scanner-section">
+                        <div class="scanner-placeholder" id="scannerPlaceholder">
+                            <div class="scanner-frame">
+                                <div class="scanner-animation"></div>
+                                <div class="scanner-text">Camera will appear here</div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-container" id="videoContainer">
+                            <video id="qr-video" playsinline></video>
+                            <div class="canvas-container">
+                                <canvas id="qr-canvas"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="scanner-controls">
+                            <button class="btn" id="startScannerBtn">
+                                <i class="fas fa-camera"></i> START SCANNER
+                            </button>
+                            <button class="btn btn-secondary" id="stopScannerBtn">
+                                <i class="fas fa-stop"></i> STOP SCANNER
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3>Accepted Personnel</h3>
+                        <p>Only these individuals will be granted access.</p>
+                        
+                        <div class="valid-ids">
+                            <div class="id-card">
+                                <div class="id-name">ADRIAN BROOKS</div>
+                                <div class="id-role">DEM STUDIOS OWNER</div>
+                            </div>
+                            
+                            <div class="id-card">
+                                <div class="id-name">RICHARD ORTIZ</div>
+                                <div class="id-role">DEM STUDIOS WORKER</div>
+                            </div>
+                            
+                            <div class="id-card">
+                                <div class="id-name">JOSIAH WILKE</div>
+                                <div class="id-role">14592 STUDIOS OWNER</div>
+                            </div>
+                            
+                            <div class="id-card">
+                                <div class="id-name">SHANMUKH PUVVADA</div>
+                                <div class="id-role">ORIGAMIX OWNER</div>
+                            </div>
+                            
+                            <div class="id-card">
+                                <div class="id-name">JAMES KENDALL</div>
+                                <div class="id-role">ORIGAMIX WORKER</div>
+                            </div>
+                        </div>
+                        
+                        <p class="warning">Any QR codes not listed here are NOT safe!</p>
+                    </div>
+                </div>
+                
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+        </div>
+        
+        <!-- Welcome Section -->
+        <div class="welcome-message" id="welcomeSection">
+            <div class="welcome-title">ACCESS GRANTED!</div>
+            <div class="welcome-subtitle">Welcome to Dem Studios Secure Portal</div>
+            <p>Your identity has been verified successfully.</p>
+            
+            <div class="controls">
+                <button class="btn" id="enterPortalBtn">ENTER PORTAL</button>
+                <button class="btn btn-tertiary" id="backToScannerBtn">BACK TO SCANNER</button>
+            </div>
+        </div>
+        
+        <!-- Portal Section -->
+        <div class="portal-section" id="portalSection">
+            <div class="header">
+                <div class="logo">Dem Studios</div>
+                <div class="subtitle">SECURE ACCESS PORTAL</div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-title">Dem Studios Portal</div>
+                
+                <iframe src="https://jokiller1011.github.io/14592-Studios-X-Dem-Studios-Login/" 
+                        class="portal-container" id="portalFrame"></iframe>
+                
+                <div class="controls">
+                    <button class="btn btn-tertiary" id="backToWelcomeBtn">BACK TO WELCOME</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            &copy; 2023 Dem Studios. All rights reserved. | Secure Access System v3.0
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const scannerSection = document.getElementById('scannerSection');
+            const welcomeSection = document.getElementById('welcomeSection');
+            const portalSection = document.getElementById('portalSection');
+            
+            const scannerPlaceholder = document.getElementById('scannerPlaceholder');
+            const videoContainer = document.getElementById('videoContainer');
+            const qrVideo = document.getElementById('qr-video');
+            const qrCanvas = document.getElementById('qr-canvas');
+            const canvasContext = qrCanvas.getContext('2d');
+            
+            const startScannerBtn = document.getElementById('startScannerBtn');
+            const stopScannerBtn = document.getElementById('stopScannerBtn');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            const enterPortalBtn = document.getElementById('enterPortalBtn');
+            const backToScannerBtn = document.getElementById('backToScannerBtn');
+            const backToWelcomeBtn = document.getElementById('backToWelcomeBtn');
+            const portalFrame = document.getElementById('portalFrame');
+            
+            // Valid users
+            const validUsers = {
+                'adrian': { name: 'ADRIAN BROOKS', role: 'DEM STUDIOS OWNER' },
+                'richard': { name: 'RICHARD ORTIZ', role: 'DEM STUDIOS WORKER' },
+                'josiah': { name: 'JOSIAH WILKE', role: '14592 STUDIOS OWNER' },
+                'shanmukh': { name: 'SHANMUKH PUVVADA', role: 'ORIGAMIX OWNER' },
+                'james': { name: 'JAMES KENDALL', role: 'ORIGAMIX WORKER' }
+            };
+            
+            let stream = null;
+            let scanning = false;
+            let scanInterval;
+            
+            // Start scanner button
+            startScannerBtn.addEventListener('click', function() {
+                startScanner();
+            });
+            
+            // Stop scanner button
+            stopScannerBtn.addEventListener('click', function() {
+                stopScanner();
+            });
+            
+            // Enter portal button
+            enterPortalBtn.addEventListener('click', function() {
+                welcomeSection.style.display = 'none';
+                portalSection.style.display = 'block';
+                portalFrame.style.display = 'block';
+            });
+            
+            // Back to scanner button
+            backToScannerBtn.addEventListener('click', function() {
+                welcomeSection.style.display = 'none';
+                scannerSection.style.display = 'block';
+            });
+            
+            // Back to welcome button
+            backToWelcomeBtn.addEventListener('click', function() {
+                portalSection.style.display = 'none';
+                welcomeSection.style.display = 'block';
+            });
+            
+            // Start QR scanner
+            function startScanner() {
+                if (scanning) return;
+                
+                // Show camera access message
+                showStatus('Requesting camera access...', 'success');
+                
+                navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: "environment",
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                })
+                .then(function(s) {
+                    stream = s;
+                    qrVideo.srcObject = stream;
+                    
+                    qrVideo.onloadedmetadata = function() {
+                        qrVideo.play();
+                        
+                        scannerPlaceholder.style.display = 'none';
+                        videoContainer.style.display = 'block';
+                        startScannerBtn.disabled = true;
+                        stopScannerBtn.disabled = false;
+                        scanning = true;
+                        
+                        showStatus('Camera active. Point at a QR code to scan.', 'success');
+                        
+                        // Start scanning simulation
+                        scanInterval = setInterval(simulateQRScan, 2000);
+                    };
+                })
+                .catch(function(err) {
+                    console.error("Error accessing camera: ", err);
+                    showStatus('Cannot access camera. Please allow camera permissions and ensure you are using HTTPS.', 'error');
+                });
+            }
+            
+            // Stop QR scanner
+            function stopScanner() {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                
+                if (scanInterval) {
+                    clearInterval(scanInterval);
+                }
+                
+                scannerPlaceholder.style.display = 'flex';
+                videoContainer.style.display = 'none';
+                startScannerBtn.disabled = false;
+                stopScannerBtn.disabled = true;
+                scanning = false;
+                
+                showStatus('Scanner stopped.', 'success');
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Simulate QR code scanning
+            function simulateQRScan() {
+                if (!scanning) return;
+                
+                // Simulate QR code detection with random chance
+                if (Math.random() < 0.3) { // 30% chance to detect a QR code
+                    const demoUsers = Object.keys(validUsers);
+                    const randomUser = demoUsers[Math.floor(Math.random() * demoUsers.length)];
+                    verifyUser(randomUser);
+                }
+            }
+            
+            // Verify user and grant access
+            function verifyUser(userId) {
+                if (validUsers[userId]) {
+                    const user = validUsers[userId];
+                    showStatus(`Access granted! Welcome ${user.name}`, 'success');
+                    
+                    // Stop scanner
+                    stopScanner();
+                    
+                    // Show welcome message after delay
+                    setTimeout(function() {
+                        scannerSection.style.display = 'none';
+                        welcomeSection.style.display = 'block';
+                    }, 2000);
+                } else {
+                    showStatus('ACCESS DENIED: User not recognized!', 'error');
+                }
+            }
+            
+            // Function to show status messages
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status-message ' + type;
+                statusMessage.style.display = 'block';
+            }
+            
+            // Initialize UI state
+            stopScannerBtn.disabled = true;
+            portalSection.style.display = 'none';
+            welcomeSection.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
