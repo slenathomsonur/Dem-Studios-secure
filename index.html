@@ -6,7 +6,6 @@
     <title>14592 Studios X Dem Studios - Secure Access</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -173,6 +172,43 @@
             width: 100%;
             height: 100%;
             display: none;
+        }
+        
+        .face-video-container {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        #face-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .face-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+        
+        .face-frame {
+            width: 200px;
+            height: 250px;
+            border: 3px solid #ffffff;
+            border-radius: 15px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
         }
         
         .scanner-overlay {
@@ -349,7 +385,7 @@
             flex: 1;
         }
         
-        .password-section {
+        .password-section, .faceid-section, .manual-section {
             display: none;
             text-align: center;
         }
@@ -385,63 +421,28 @@
             border-color: rgba(255, 255, 255, 0.5);
         }
         
-        .safe-list-section {
-            display: none;
+        .access-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .access-options .btn {
+            flex: 1;
+        }
+        
+        .faceid-instructions {
             text-align: center;
-        }
-        
-        .qr-codes-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .qr-code-item {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .qr-code-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-5px);
-        }
-        
-        .qr-code-image {
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 15px;
-            background: white;
-            border-radius: 8px;
-            padding: 10px;
-        }
-        
-        .qr-code-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .qr-code-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #ffffff;
-        }
-        
-        .qr-code-role {
-            font-size: 0.9rem;
+            margin-bottom: 20px;
             color: #cccccc;
-            margin-bottom: 5px;
+            font-size: 0.9rem;
         }
         
-        .qr-code-id {
-            font-size: 0.8rem;
-            color: #999999;
-            font-family: monospace;
+        .manual-instructions {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #cccccc;
+            font-size: 0.9rem;
         }
         
         @media (max-width: 768px) {
@@ -458,16 +459,12 @@
                 height: 250px;
             }
             
-            .controls {
+            .controls, .access-options {
                 flex-direction: column;
             }
             
             .scanner-controls {
                 flex-direction: column;
-            }
-            
-            .qr-codes-container {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             }
         }
     </style>
@@ -482,9 +479,18 @@
             </div>
             
             <div class="panel">
-                <div class="panel-title">QR Code Verification</div>
+                <div class="panel-title">Identity Verification</div>
                 
-                <div class="scanner-container">
+                <div class="access-options">
+                    <button class="btn btn-primary" id="qrScanBtn">
+                        <i class="fas fa-qrcode"></i> SCAN QR CODE
+                    </button>
+                    <button class="btn" id="manualEntryBtn">
+                        <i class="fas fa-keyboard"></i> MANUAL ENTRY
+                    </button>
+                </div>
+                
+                <div class="scanner-container" id="qrScannerContainer">
                     <div class="scanner-section">
                         <div class="scanner-placeholder" id="scannerPlaceholder">
                             <div class="scanner-frame">
@@ -517,9 +523,6 @@
                             <button class="btn" id="stopScannerBtn">
                                 <i class="fas fa-stop"></i> STOP SCANNER
                             </button>
-                            <button class="btn" id="viewSafeListBtn">
-                                <i class="fas fa-list"></i> SAFE CODES
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -528,26 +531,60 @@
             </div>
         </div>
         
-        <!-- Safe List Section -->
-        <div class="safe-list-section" id="safeListSection">
+        <!-- Manual Entry Section -->
+        <div class="manual-section" id="manualSection">
             <div class="header">
                 <div class="logo">14592 Studios X Dem Studios</div>
-                <div class="subtitle">SAFE QR CODES LIST</div>
+                <div class="subtitle">MANUAL ID VERIFICATION</div>
             </div>
             
             <div class="panel">
-                <div class="panel-title">Authorized QR Codes</div>
-                <p style="text-align: center; margin-bottom: 20px; color: #cccccc;">These are the only accepted QR codes. Scan any of these to gain access.</p>
+                <div class="panel-title">Enter Identification</div>
+                <p class="manual-instructions">Please enter your identification details to continue.</p>
                 
-                <div class="qr-codes-container" id="qrCodesContainer">
-                    <!-- QR codes will be generated here -->
+                <div class="input-group">
+                    <label for="manualIdInput">Identification Code</label>
+                    <input type="text" id="manualIdInput" placeholder="Enter your identification code">
                 </div>
                 
                 <div class="controls">
-                    <button class="btn btn-primary" id="backToScannerFromListBtn">
-                        <i class="fas fa-arrow-left"></i> BACK TO SCANNER
-                    </button>
+                    <button class="btn btn-primary" id="verifyManualBtn">VERIFY IDENTITY</button>
+                    <button class="btn" id="backToScannerFromManualBtn">BACK TO SCANNER</button>
                 </div>
+                
+                <div class="status-message" id="manualStatusMessage"></div>
+            </div>
+        </div>
+        
+        <!-- Face ID Section -->
+        <div class="faceid-section" id="faceIdSection">
+            <div class="header">
+                <div class="logo">14592 Studios X Dem Studios</div>
+                <div class="subtitle">FACE ID VERIFICATION</div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-title">Face Recognition</div>
+                <p class="faceid-instructions">Position your face within the frame for verification</p>
+                
+                <div class="face-video-container" id="faceVideoContainer">
+                    <video id="face-video" playsinline></video>
+                    <div class="face-overlay">
+                        <div class="face-frame"></div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startFaceIdBtn">
+                        <i class="fas fa-user"></i> START FACE ID
+                    </button>
+                    <button class="btn" id="stopFaceIdBtn">
+                        <i class="fas fa-stop"></i> STOP FACE ID
+                    </button>
+                    <button class="btn" id="backToPasswordFromFaceBtn">BACK</button>
+                </div>
+                
+                <div class="status-message" id="faceIdStatusMessage"></div>
             </div>
         </div>
         
@@ -569,6 +606,9 @@
                 
                 <div class="controls">
                     <button class="btn btn-primary" id="verifyPasswordBtn">VERIFY PASSWORD</button>
+                    <button class="btn" id="useFaceIdBtn">
+                        <i class="fas fa-user"></i> USE FACE ID INSTEAD
+                    </button>
                     <button class="btn" id="backToScannerFromPasswordBtn">BACK TO SCANNER</button>
                 </div>
                 
@@ -608,7 +648,7 @@
         </div>
         
         <div class="footer">
-            &copy; 2023 14592 Studios X Dem Studios. All rights reserved. | Secure Access System v4.0
+            &copy; 2023 14592 Studios X Dem Studios. All rights reserved. | Secure Access System v5.0
         </div>
     </div>
 
@@ -616,23 +656,38 @@
         document.addEventListener('DOMContentLoaded', function() {
             // DOM elements
             const scannerSection = document.getElementById('scannerSection');
-            const safeListSection = document.getElementById('safeListSection');
+            const manualSection = document.getElementById('manualSection');
+            const faceIdSection = document.getElementById('faceIdSection');
             const passwordSection = document.getElementById('passwordSection');
             const welcomeSection = document.getElementById('welcomeSection');
             const portalSection = document.getElementById('portalSection');
             
+            const qrScannerContainer = document.getElementById('qrScannerContainer');
             const scannerPlaceholder = document.getElementById('scannerPlaceholder');
             const videoContainer = document.getElementById('videoContainer');
             const qrVideo = document.getElementById('qr-video');
             const qrCanvas = document.getElementById('qr-canvas');
             const canvasContext = qrCanvas.getContext('2d');
-            const qrCodesContainer = document.getElementById('qrCodesContainer');
             
+            const faceVideoContainer = document.getElementById('faceVideoContainer');
+            const faceVideo = document.getElementById('face-video');
+            
+            const qrScanBtn = document.getElementById('qrScanBtn');
+            const manualEntryBtn = document.getElementById('manualEntryBtn');
             const startScannerBtn = document.getElementById('startScannerBtn');
             const stopScannerBtn = document.getElementById('stopScannerBtn');
-            const viewSafeListBtn = document.getElementById('viewSafeListBtn');
-            const backToScannerFromListBtn = document.getElementById('backToScannerFromListBtn');
             const statusMessage = document.getElementById('statusMessage');
+            
+            const manualIdInput = document.getElementById('manualIdInput');
+            const verifyManualBtn = document.getElementById('verifyManualBtn');
+            const backToScannerFromManualBtn = document.getElementById('backToScannerFromManualBtn');
+            const manualStatusMessage = document.getElementById('manualStatusMessage');
+            
+            const startFaceIdBtn = document.getElementById('startFaceIdBtn');
+            const stopFaceIdBtn = document.getElementById('stopFaceIdBtn');
+            const backToPasswordFromFaceBtn = document.getElementById('backToPasswordFromFaceBtn');
+            const faceIdStatusMessage = document.getElementById('faceIdStatusMessage');
+            const useFaceIdBtn = document.getElementById('useFaceIdBtn');
             
             const passwordInput = document.getElementById('passwordInput');
             const verifyPasswordBtn = document.getElementById('verifyPasswordBtn');
@@ -673,80 +728,78 @@
                 }
             };
             
-            let stream = null;
-            let scanning = false;
+            let qrStream = null;
+            let faceStream = null;
+            let qrScanning = false;
+            let faceScanning = false;
             let scanAnimationFrame;
             let currentCode = null;
             
-            // Generate QR codes for safe list
-            function generateQRCodes() {
-                qrCodesContainer.innerHTML = '';
-                
-                Object.keys(validCodes).forEach(id => {
-                    const user = validCodes[id];
-                    const qrItem = document.createElement('div');
-                    qrItem.className = 'qr-code-item';
-                    
-                    const qrImage = document.createElement('div');
-                    qrImage.className = 'qr-code-image';
-                    qrImage.id = `qr-${id}`;
-                    
-                    const name = document.createElement('div');
-                    name.className = 'qr-code-name';
-                    name.textContent = user.name;
-                    
-                    const role = document.createElement('div');
-                    role.className = 'qr-code-role';
-                    role.textContent = user.role;
-                    
-                    const idNum = document.createElement('div');
-                    idNum.className = 'qr-code-id';
-                    idNum.textContent = `ID: ${id}`;
-                    
-                    qrItem.appendChild(qrImage);
-                    qrItem.appendChild(name);
-                    qrItem.appendChild(role);
-                    qrItem.appendChild(idNum);
-                    
-                    qrCodesContainer.appendChild(qrItem);
-                    
-                    // Generate QR code
-                    QRCode.toCanvas(document.getElementById(`qr-${id}`), id, {
-                        width: 150,
-                        margin: 1,
-                        color: {
-                            dark: '#000000',
-                            light: '#FFFFFF'
-                        }
-                    }, function(error) {
-                        if (error) console.error(error);
-                    });
-                });
-            }
+            // Initialize UI
+            qrScannerContainer.style.display = 'none';
+            stopScannerBtn.disabled = true;
+            stopFaceIdBtn.disabled = true;
+            manualSection.style.display = 'none';
+            faceIdSection.style.display = 'none';
+            passwordSection.style.display = 'none';
+            portalSection.style.display = 'none';
+            welcomeSection.style.display = 'none';
             
-            // Initialize QR codes
-            generateQRCodes();
+            // QR Scan Button
+            qrScanBtn.addEventListener('click', function() {
+                qrScannerContainer.style.display = 'block';
+            });
+            
+            // Manual Entry Button
+            manualEntryBtn.addEventListener('click', function() {
+                scannerSection.style.display = 'none';
+                manualSection.style.display = 'block';
+            });
             
             // Start scanner button
             startScannerBtn.addEventListener('click', function() {
-                startScanner();
+                startQRScanner();
             });
             
             // Stop scanner button
             stopScannerBtn.addEventListener('click', function() {
-                stopScanner();
+                stopQRScanner();
             });
             
-            // View safe list button
-            viewSafeListBtn.addEventListener('click', function() {
-                scannerSection.style.display = 'none';
-                safeListSection.style.display = 'block';
+            // Verify manual entry
+            verifyManualBtn.addEventListener('click', function() {
+                verifyManualEntry();
             });
             
-            // Back to scanner from list button
-            backToScannerFromListBtn.addEventListener('click', function() {
-                safeListSection.style.display = 'none';
+            // Back to scanner from manual
+            backToScannerFromManualBtn.addEventListener('click', function() {
+                manualSection.style.display = 'none';
                 scannerSection.style.display = 'block';
+                manualIdInput.value = '';
+                manualStatusMessage.style.display = 'none';
+            });
+            
+            // Start Face ID
+            startFaceIdBtn.addEventListener('click', function() {
+                startFaceID();
+            });
+            
+            // Stop Face ID
+            stopFaceIdBtn.addEventListener('click', function() {
+                stopFaceID();
+            });
+            
+            // Back from Face ID
+            backToPasswordFromFaceBtn.addEventListener('click', function() {
+                stopFaceID();
+                faceIdSection.style.display = 'none';
+                passwordSection.style.display = 'block';
+            });
+            
+            // Use Face ID instead
+            useFaceIdBtn.addEventListener('click', function() {
+                passwordSection.style.display = 'none';
+                faceIdSection.style.display = 'block';
             });
             
             // Verify password button
@@ -784,10 +837,9 @@
             });
             
             // Start QR scanner
-            function startScanner() {
-                if (scanning) return;
+            function startQRScanner() {
+                if (qrScanning) return;
                 
-                // Show camera access message
                 showStatus('Initializing camera...', 'success');
                 
                 navigator.mediaDevices.getUserMedia({ 
@@ -798,8 +850,8 @@
                     } 
                 })
                 .then(function(s) {
-                    stream = s;
-                    qrVideo.srcObject = stream;
+                    qrStream = s;
+                    qrVideo.srcObject = qrStream;
                     
                     qrVideo.onloadedmetadata = function() {
                         qrVideo.play();
@@ -812,7 +864,7 @@
                         videoContainer.style.display = 'block';
                         startScannerBtn.disabled = true;
                         stopScannerBtn.disabled = false;
-                        scanning = true;
+                        qrScanning = true;
                         
                         showStatus('Camera active. Scanning for QR codes...', 'success');
                         
@@ -827,10 +879,10 @@
             }
             
             // Stop QR scanner
-            function stopScanner() {
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                    stream = null;
+            function stopQRScanner() {
+                if (qrStream) {
+                    qrStream.getTracks().forEach(track => track.stop());
+                    qrStream = null;
                 }
                 
                 if (scanAnimationFrame) {
@@ -841,7 +893,7 @@
                 videoContainer.style.display = 'none';
                 startScannerBtn.disabled = false;
                 stopScannerBtn.disabled = true;
-                scanning = false;
+                qrScanning = false;
                 
                 showStatus('Scanner stopped.', 'success');
                 setTimeout(() => {
@@ -851,7 +903,7 @@
             
             // Scan for QR codes
             function scanQRCode() {
-                if (!scanning) return;
+                if (!qrScanning) return;
                 
                 if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
                     // Draw video frame to canvas
@@ -875,7 +927,7 @@
                             showStatus(`Valid QR code detected! Welcome ${currentCode.name}`, 'success');
                             
                             // Stop scanner
-                            stopScanner();
+                            stopQRScanner();
                             
                             // Show password section after delay
                             setTimeout(function() {
@@ -891,9 +943,99 @@
                 }
                 
                 // Continue scanning
-                if (scanning) {
+                if (qrScanning) {
                     scanAnimationFrame = requestAnimationFrame(scanQRCode);
                 }
+            }
+            
+            // Verify manual entry
+            function verifyManualEntry() {
+                const manualId = manualIdInput.value.trim();
+                
+                if (!manualId) {
+                    showManualStatus('Please enter your identification code.', 'error');
+                    return;
+                }
+                
+                // Check if it's a valid code
+                if (validCodes[manualId]) {
+                    currentCode = validCodes[manualId];
+                    showManualStatus(`Identity verified! Welcome ${currentCode.name}`, 'success');
+                    
+                    // Show password section after delay
+                    setTimeout(function() {
+                        manualSection.style.display = 'none';
+                        passwordSection.style.display = 'block';
+                    }, 1500);
+                } else {
+                    showManualStatus('Invalid identification code. Please try again.', 'error');
+                }
+            }
+            
+            // Start Face ID
+            function startFaceID() {
+                if (faceScanning) return;
+                
+                showFaceIdStatus('Initializing face recognition...', 'success');
+                
+                navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    } 
+                })
+                .then(function(s) {
+                    faceStream = s;
+                    faceVideo.srcObject = faceStream;
+                    
+                    faceVideo.onloadedmetadata = function() {
+                        faceVideo.play();
+                        faceVideoContainer.style.display = 'block';
+                        startFaceIdBtn.disabled = true;
+                        stopFaceIdBtn.disabled = false;
+                        faceScanning = true;
+                        
+                        showFaceIdStatus('Face recognition active. Please position your face in the frame.', 'success');
+                        
+                        // Simulate face recognition
+                        setTimeout(function() {
+                            if (faceScanning && currentCode) {
+                                showFaceIdStatus('Face verified successfully!', 'success');
+                                
+                                // Stop face recognition
+                                stopFaceID();
+                                
+                                // Show welcome after delay
+                                setTimeout(function() {
+                                    faceIdSection.style.display = 'none';
+                                    welcomeSection.style.display = 'block';
+                                }, 1500);
+                            }
+                        }, 3000);
+                    };
+                })
+                .catch(function(err) {
+                    console.error("Error accessing camera: ", err);
+                    showFaceIdStatus('Cannot access camera. Please allow camera permissions.', 'error');
+                });
+            }
+            
+            // Stop Face ID
+            function stopFaceID() {
+                if (faceStream) {
+                    faceStream.getTracks().forEach(track => track.stop());
+                    faceStream = null;
+                }
+                
+                faceVideoContainer.style.display = 'none';
+                startFaceIdBtn.disabled = false;
+                stopFaceIdBtn.disabled = true;
+                faceScanning = false;
+                
+                showFaceIdStatus('Face recognition stopped.', 'success');
+                setTimeout(() => {
+                    faceIdStatusMessage.style.display = 'none';
+                }, 3000);
             }
             
             // Verify password
@@ -918,28 +1060,38 @@
                 }
             }
             
-            // Function to show status messages
+            // Status message functions
             function showStatus(message, type) {
                 statusMessage.textContent = message;
                 statusMessage.className = 'status-message ' + type;
                 statusMessage.style.display = 'block';
             }
             
-            // Function to show password status messages
+            function showManualStatus(message, type) {
+                manualStatusMessage.textContent = message;
+                manualStatusMessage.className = 'status-message ' + type;
+                manualStatusMessage.style.display = 'block';
+            }
+            
+            function showFaceIdStatus(message, type) {
+                faceIdStatusMessage.textContent = message;
+                faceIdStatusMessage.className = 'status-message ' + type;
+                faceIdStatusMessage.style.display = 'block';
+            }
+            
             function showPasswordStatus(message, type) {
                 passwordStatusMessage.textContent = message;
                 passwordStatusMessage.className = 'status-message ' + type;
                 passwordStatusMessage.style.display = 'block';
             }
             
-            // Initialize UI state
-            stopScannerBtn.disabled = true;
-            safeListSection.style.display = 'none';
-            passwordSection.style.display = 'none';
-            portalSection.style.display = 'none';
-            welcomeSection.style.display = 'none';
+            // Add keyboard events
+            manualIdInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verifyManualEntry();
+                }
+            });
             
-            // Add keyboard event for password input
             passwordInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     verifyPassword();
