@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dem Studios - Secure Access</title>
+    <title>14592 Studios X Dem Studios - Secure Access</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
         * {
             margin: 0;
@@ -14,7 +15,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a, #2a2a2a);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
             min-height: 100vh;
@@ -43,79 +44,72 @@
         }
         
         .logo {
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 5px;
+            letter-spacing: 3px;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4d96ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-size: 300% 300%;
-            animation: metallic 3s ease infinite;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            position: relative;
         }
         
-        @keyframes metallic {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ffffff, transparent);
         }
         
         .subtitle {
             font-size: 1.2rem;
-            opacity: 0.9;
+            opacity: 0.8;
             letter-spacing: 2px;
-            color: #a0a0e0;
+            color: #cccccc;
+            margin-top: 10px;
         }
         
         .panel {
-            background: rgba(20, 20, 40, 0.8);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5),
-                        0 0 50px rgba(100, 100, 255, 0.1);
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(100, 100, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             animation: slideUp 1s ease;
             margin-bottom: 30px;
         }
         
         .panel-title {
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.8rem;
+            margin-bottom: 25px;
+            font-size: 1.6rem;
             font-weight: 600;
-            color: #ffd93d;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .scanner-container {
             display: flex;
-            flex-wrap: wrap;
-            gap: 40px;
-            justify-content: center;
+            flex-direction: column;
+            gap: 30px;
             margin-bottom: 30px;
         }
         
         .scanner-section {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .info-section {
-            flex: 1;
-            min-width: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
         }
         
         .scanner-placeholder {
             width: 100%;
-            height: 300px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -123,19 +117,19 @@
             margin-bottom: 20px;
             position: relative;
             overflow: hidden;
-            border: 2px dashed rgba(100, 100, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
         .scanner-frame {
-            width: 80%;
-            height: 80%;
-            border: 3px solid #ff6b6b;
-            border-radius: 10px;
+            width: 280px;
+            height: 280px;
+            border: 3px solid #ffffff;
+            border-radius: 12px;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
         }
         
         .scanner-animation {
@@ -143,23 +137,26 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #ff6b6b, transparent);
-            animation: scan 2s linear infinite;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #ffffff, transparent);
+            animation: scan 1.5s linear infinite;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
         
         .scanner-text {
             text-align: center;
             color: rgba(255, 255, 255, 0.7);
             font-size: 1.1rem;
+            margin-top: 20px;
         }
         
         .video-container {
             width: 100%;
             height: 100%;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
             display: none;
+            position: relative;
         }
         
         #qr-video {
@@ -168,98 +165,122 @@
             object-fit: cover;
         }
         
+        #qr-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .scanner-corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: #ffffff;
+            border-style: solid;
+        }
+        
+        .corner-tl {
+            top: 20px;
+            left: 20px;
+            border-width: 3px 0 0 3px;
+        }
+        
+        .corner-tr {
+            top: 20px;
+            right: 20px;
+            border-width: 3px 3px 0 0;
+        }
+        
+        .corner-bl {
+            bottom: 20px;
+            left: 20px;
+            border-width: 0 0 3px 3px;
+        }
+        
+        .corner-br {
+            bottom: 20px;
+            right: 20px;
+            border-width: 0 3px 3px 0;
+        }
+        
         .btn {
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             border: none;
-            border-radius: 10px;
-            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
-            color: #0f0c29;
-            font-size: 1.1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 10px;
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.5);
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         .btn:active {
-            transform: translateY(1px);
+            transform: translateY(0);
         }
         
-        .btn-secondary {
-            background: linear-gradient(45deg, #4d96ff, #6bcf7f);
-            box-shadow: 0 5px 15px rgba(77, 150, 255, 0.3);
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #000000;
         }
         
-        .btn-secondary:hover {
-            box-shadow: 0 8px 20px rgba(77, 150, 255, 0.5);
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 1);
         }
         
-        .btn-tertiary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        .scanner-controls {
+            display: flex;
+            gap: 10px;
         }
         
-        .btn-tertiary:hover {
-            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            opacity: 0.9;
-            color: #a0a0e0;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 15px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .input-group input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 0 2px rgba(100, 100, 255, 0.5);
+        .scanner-controls .btn {
+            flex: 1;
         }
         
         .status-message {
             text-align: center;
             margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 8px;
             display: none;
             font-weight: 600;
+            border: 1px solid;
         }
         
         .success {
-            background: rgba(46, 204, 113, 0.3);
-            border: 1px solid #2ecc71;
-            color: #2ecc71;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #ffffff;
         }
         
         .error {
-            background: rgba(231, 76, 60, 0.3);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
+            background: rgba(255, 0, 0, 0.1);
+            border-color: rgba(255, 0, 0, 0.5);
+            color: #ff6b6b;
         }
         
         .footer {
@@ -267,7 +288,7 @@
             text-align: center;
             font-size: 0.8rem;
             opacity: 0.7;
-            color: #a0a0e0;
+            color: #cccccc;
         }
         
         @keyframes fadeIn {
@@ -286,57 +307,15 @@
             100% { top: 0; }
         }
         
-        .valid-ids {
-            margin-top: 20px;
-        }
-        
-        .id-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: left;
-            border-left: 4px solid #ffd93d;
-            transition: transform 0.3s ease;
-        }
-        
-        .id-card:hover {
-            transform: translateX(5px);
-        }
-        
-        .id-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #ffd93d;
-        }
-        
-        .id-role {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-bottom: 5px;
-            color: #a0a0e0;
-        }
-        
-        .warning {
-            color: #ff6b6b;
-            font-weight: bold;
-            margin: 15px 0;
-            text-align: center;
-            background: rgba(255, 107, 107, 0.1);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 107, 107, 0.3);
-        }
-        
         .portal-container {
             width: 100%;
             height: 600px;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             display: none;
             margin-top: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            background: #000;
         }
         
         .welcome-message {
@@ -346,17 +325,17 @@
         }
         
         .welcome-title {
-            font-size: 3rem;
+            font-size: 2.5rem;
             margin-bottom: 20px;
-            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         
         .welcome-subtitle {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             margin-bottom: 30px;
-            color: #a0a0e0;
+            color: #cccccc;
         }
         
         .controls {
@@ -369,29 +348,40 @@
             flex: 1;
         }
         
-        .scanner-controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .scanner-controls .btn {
-            flex: 1;
-        }
-        
         .password-section {
             display: none;
             text-align: center;
         }
         
-        .password-title {
-            font-size: 1.5rem;
+        .input-group {
             margin-bottom: 20px;
-            color: #ffd93d;
         }
         
-        .password-instructions {
-            margin-bottom: 20px;
-            color: #a0a0e0;
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            color: #cccccc;
+            text-align: left;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
         }
         
         @media (max-width: 768px) {
@@ -400,11 +390,12 @@
             }
             
             .panel {
-                padding: 25px;
+                padding: 20px;
             }
             
-            .scanner-container {
-                flex-direction: column;
+            .scanner-frame {
+                width: 250px;
+                height: 250px;
             }
             
             .controls {
@@ -422,68 +413,47 @@
         <!-- QR Scanner Section -->
         <div class="scanner-section" id="scannerSection">
             <div class="header">
-                <div class="logo">Dem Studios</div>
-                <div class="subtitle">SECURE QR ACCESS SYSTEM</div>
+                <div class="logo">14592 Studios X Dem Studios</div>
+                <div class="subtitle">SECURE ACCESS SYSTEM</div>
             </div>
             
             <div class="panel">
-                <div class="panel-title">Scan Your QR Code</div>
+                <div class="panel-title">QR Code Verification</div>
                 
                 <div class="scanner-container">
                     <div class="scanner-section">
                         <div class="scanner-placeholder" id="scannerPlaceholder">
                             <div class="scanner-frame">
                                 <div class="scanner-animation"></div>
-                                <div class="scanner-text">Camera will appear here</div>
+                                <div class="scanner-overlay">
+                                    <div class="scanner-corner corner-tl"></div>
+                                    <div class="scanner-corner corner-tr"></div>
+                                    <div class="scanner-corner corner-bl"></div>
+                                    <div class="scanner-corner corner-br"></div>
+                                </div>
+                                <div class="scanner-text">Position QR code within frame</div>
                             </div>
                         </div>
                         
                         <div class="video-container" id="videoContainer">
                             <video id="qr-video" playsinline></video>
+                            <canvas id="qr-canvas"></canvas>
+                            <div class="scanner-overlay">
+                                <div class="scanner-corner corner-tl"></div>
+                                <div class="scanner-corner corner-tr"></div>
+                                <div class="scanner-corner corner-bl"></div>
+                                <div class="scanner-corner corner-br"></div>
+                            </div>
                         </div>
                         
                         <div class="scanner-controls">
-                            <button class="btn" id="startScannerBtn">
+                            <button class="btn btn-primary" id="startScannerBtn">
                                 <i class="fas fa-camera"></i> START SCANNER
                             </button>
-                            <button class="btn btn-secondary" id="stopScannerBtn">
+                            <button class="btn" id="stopScannerBtn">
                                 <i class="fas fa-stop"></i> STOP SCANNER
                             </button>
                         </div>
-                    </div>
-                    
-                    <div class="info-section">
-                        <h3>Accepted Personnel</h3>
-                        <p>Only these individuals will be granted access.</p>
-                        
-                        <div class="valid-ids">
-                            <div class="id-card">
-                                <div class="id-name">ADRIAN BROOKS</div>
-                                <div class="id-role">DEM STUDIOS OWNER</div>
-                            </div>
-                            
-                            <div class="id-card">
-                                <div class="id-name">RICHARD ORTIZ</div>
-                                <div class="id-role">DEM STUDIOS WORKER</div>
-                            </div>
-                            
-                            <div class="id-card">
-                                <div class="id-name">JOSIAH WILKE</div>
-                                <div class="id-role">14592 STUDIOS OWNER</div>
-                            </div>
-                            
-                            <div class="id-card">
-                                <div class="id-name">SHANMUKH PUVVADA</div>
-                                <div class="id-role">ORIGAMIX OWNER</div>
-                            </div>
-                            
-                            <div class="id-card">
-                                <div class="id-name">JAMES KENDALL</div>
-                                <div class="id-role">ORIGAMIX WORKER</div>
-                            </div>
-                        </div>
-                        
-                        <p class="warning">Any QR codes not listed here are NOT safe!</p>
                     </div>
                 </div>
                 
@@ -494,13 +464,13 @@
         <!-- Password Section -->
         <div class="password-section" id="passwordSection">
             <div class="header">
-                <div class="logo">Dem Studios</div>
+                <div class="logo">14592 Studios X Dem Studios</div>
                 <div class="subtitle">SECURITY VERIFICATION</div>
             </div>
             
             <div class="panel">
                 <div class="panel-title">Enter Security Password</div>
-                <p class="password-instructions">Please enter your security password to continue.</p>
+                <p style="text-align: center; margin-bottom: 20px; color: #cccccc;">Please enter your security password to continue.</p>
                 
                 <div class="input-group">
                     <label for="passwordInput">Password</label>
@@ -508,8 +478,8 @@
                 </div>
                 
                 <div class="controls">
-                    <button class="btn" id="verifyPasswordBtn">VERIFY PASSWORD</button>
-                    <button class="btn btn-tertiary" id="backToScannerFromPasswordBtn">BACK TO SCANNER</button>
+                    <button class="btn btn-primary" id="verifyPasswordBtn">VERIFY PASSWORD</button>
+                    <button class="btn" id="backToScannerFromPasswordBtn">BACK TO SCANNER</button>
                 </div>
                 
                 <div class="status-message" id="passwordStatusMessage"></div>
@@ -519,36 +489,36 @@
         <!-- Welcome Section -->
         <div class="welcome-message" id="welcomeSection">
             <div class="welcome-title">ACCESS GRANTED!</div>
-            <div class="welcome-subtitle">Welcome to Dem Studios Secure Portal</div>
-            <p>Your identity has been verified successfully.</p>
+            <div class="welcome-subtitle">Welcome to 14592 Studios X Dem Studios</div>
+            <p style="color: #cccccc;">Your identity has been verified successfully.</p>
             
             <div class="controls">
-                <button class="btn" id="enterPortalBtn">ENTER PORTAL</button>
-                <button class="btn btn-tertiary" id="backToScannerBtn">BACK TO SCANNER</button>
+                <button class="btn btn-primary" id="enterPortalBtn">ENTER PORTAL</button>
+                <button class="btn" id="backToScannerBtn">BACK TO SCANNER</button>
             </div>
         </div>
         
         <!-- Portal Section -->
         <div class="portal-section" id="portalSection">
             <div class="header">
-                <div class="logo">Dem Studios</div>
+                <div class="logo">14592 Studios X Dem Studios</div>
                 <div class="subtitle">SECURE ACCESS PORTAL</div>
             </div>
             
             <div class="panel">
-                <div class="panel-title">Dem Studios Portal</div>
+                <div class="panel-title">Secure Portal</div>
                 
                 <iframe src="https://jokiller1011.github.io/14592-Studios-X-Dem-Studios-Login/" 
                         class="portal-container" id="portalFrame"></iframe>
                 
                 <div class="controls">
-                    <button class="btn btn-tertiary" id="backToWelcomeBtn">BACK TO WELCOME</button>
+                    <button class="btn" id="backToWelcomeBtn">BACK TO WELCOME</button>
                 </div>
             </div>
         </div>
         
         <div class="footer">
-            &copy; 2023 Dem Studios. All rights reserved. | Secure Access System v3.0
+            &copy; 2023 14592 Studios X Dem Studios. All rights reserved. | Secure Access System v4.0
         </div>
     </div>
 
@@ -563,6 +533,8 @@
             const scannerPlaceholder = document.getElementById('scannerPlaceholder');
             const videoContainer = document.getElementById('videoContainer');
             const qrVideo = document.getElementById('qr-video');
+            const qrCanvas = document.getElementById('qr-canvas');
+            const canvasContext = qrCanvas.getContext('2d');
             
             const startScannerBtn = document.getElementById('startScannerBtn');
             const stopScannerBtn = document.getElementById('stopScannerBtn');
@@ -578,19 +550,17 @@
             const backToWelcomeBtn = document.getElementById('backToWelcomeBtn');
             const portalFrame = document.getElementById('portalFrame');
             
-            // Valid users
-            const validUsers = {
-                'adrian': { name: 'ADRIAN BROOKS', role: 'DEM STUDIOS OWNER', password: 'demo123' },
-                'richard': { name: 'RICHARD ORTIZ', role: 'DEM STUDIOS WORKER', password: 'demo123' },
-                'josiah': { name: 'JOSIAH WILKE', role: '14592 STUDIOS OWNER', password: 'demo123' },
-                'shanmukh': { name: 'SHANMUKH PUVVADA', role: 'ORIGAMIX OWNER', password: 'demo123' },
-                'james': { name: 'JAMES KENDALL', role: 'ORIGAMIX WORKER', password: 'demo123' }
+            // Valid QR codes and passwords
+            const validCodes = {
+                '14592-DEM-ACCESS-2023': { password: 'secure123', name: 'Authorized User' },
+                'DEM-STUDIOS-ADMIN': { password: 'admin2023', name: 'Administrator' },
+                '14592-ACCESS-CODE': { password: 'access2023', name: 'Team Member' }
             };
             
             let stream = null;
             let scanning = false;
-            let scanInterval;
-            let currentUser = null;
+            let scanAnimationFrame;
+            let currentCode = null;
             
             // Start scanner button
             startScannerBtn.addEventListener('click', function() {
@@ -613,6 +583,7 @@
                 scannerSection.style.display = 'block';
                 passwordInput.value = '';
                 passwordStatusMessage.style.display = 'none';
+                currentCode = null;
             });
             
             // Enter portal button
@@ -626,7 +597,7 @@
             backToScannerBtn.addEventListener('click', function() {
                 welcomeSection.style.display = 'none';
                 scannerSection.style.display = 'block';
-                currentUser = null;
+                currentCode = null;
             });
             
             // Back to welcome button
@@ -640,7 +611,7 @@
                 if (scanning) return;
                 
                 // Show camera access message
-                showStatus('Requesting camera access...', 'success');
+                showStatus('Initializing camera...', 'success');
                 
                 navigator.mediaDevices.getUserMedia({ 
                     video: { 
@@ -656,21 +627,25 @@
                     qrVideo.onloadedmetadata = function() {
                         qrVideo.play();
                         
+                        // Set canvas size to match video
+                        qrCanvas.width = qrVideo.videoWidth;
+                        qrCanvas.height = qrVideo.videoHeight;
+                        
                         scannerPlaceholder.style.display = 'none';
                         videoContainer.style.display = 'block';
                         startScannerBtn.disabled = true;
                         stopScannerBtn.disabled = false;
                         scanning = true;
                         
-                        showStatus('Camera active. Point at a QR code to scan.', 'success');
+                        showStatus('Camera active. Scanning for QR codes...', 'success');
                         
-                        // Start scanning simulation
-                        scanInterval = setInterval(simulateQRScan, 2000);
+                        // Start scanning loop
+                        scanAnimationFrame = requestAnimationFrame(scanQRCode);
                     };
                 })
                 .catch(function(err) {
                     console.error("Error accessing camera: ", err);
-                    showStatus('Cannot access camera. Please allow camera permissions and ensure you are using HTTPS.', 'error');
+                    showStatus('Cannot access camera. Please allow camera permissions.', 'error');
                 });
             }
             
@@ -681,8 +656,8 @@
                     stream = null;
                 }
                 
-                if (scanInterval) {
-                    clearInterval(scanInterval);
+                if (scanAnimationFrame) {
+                    cancelAnimationFrame(scanAnimationFrame);
                 }
                 
                 scannerPlaceholder.style.display = 'flex';
@@ -697,34 +672,50 @@
                 }, 3000);
             }
             
-            // Simulate QR code scanning
-            function simulateQRScan() {
+            // Scan for QR codes
+            function scanQRCode() {
                 if (!scanning) return;
                 
-                // Simulate QR code detection with random chance
-                if (Math.random() < 0.3) { // 30% chance to detect a QR code
-                    const demoUsers = Object.keys(validUsers);
-                    const randomUser = demoUsers[Math.floor(Math.random() * demoUsers.length)];
-                    verifyUser(randomUser);
+                if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
+                    // Draw video frame to canvas
+                    canvasContext.drawImage(qrVideo, 0, 0, qrCanvas.width, qrCanvas.height);
+                    
+                    // Get image data from canvas
+                    const imageData = canvasContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+                    
+                    // Use jsQR to detect QR codes
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+                    
+                    // If QR code is detected
+                    if (code) {
+                        const qrData = code.data.trim();
+                        
+                        // Check if it's a valid code
+                        if (validCodes[qrData]) {
+                            currentCode = validCodes[qrData];
+                            showStatus(`Valid QR code detected! Welcome ${currentCode.name}`, 'success');
+                            
+                            // Stop scanner
+                            stopScanner();
+                            
+                            // Show password section after delay
+                            setTimeout(function() {
+                                scannerSection.style.display = 'none';
+                                passwordSection.style.display = 'block';
+                            }, 1500);
+                            
+                            return; // Exit the scanning loop
+                        } else {
+                            showStatus('Invalid QR code. Please try again.', 'error');
+                        }
+                    }
                 }
-            }
-            
-            // Verify user and request password
-            function verifyUser(userId) {
-                if (validUsers[userId]) {
-                    currentUser = validUsers[userId];
-                    showStatus(`QR Code detected! Welcome ${currentUser.name}`, 'success');
-                    
-                    // Stop scanner
-                    stopScanner();
-                    
-                    // Show password section after delay
-                    setTimeout(function() {
-                        scannerSection.style.display = 'none';
-                        passwordSection.style.display = 'block';
-                    }, 2000);
-                } else {
-                    showStatus('ACCESS DENIED: User not recognized!', 'error');
+                
+                // Continue scanning
+                if (scanning) {
+                    scanAnimationFrame = requestAnimationFrame(scanQRCode);
                 }
             }
             
@@ -737,14 +728,14 @@
                     return;
                 }
                 
-                if (currentUser && password === currentUser.password) {
+                if (currentCode && password === currentCode.password) {
                     showPasswordStatus('Password verified successfully!', 'success');
                     
                     // Show welcome message after delay
                     setTimeout(function() {
                         passwordSection.style.display = 'none';
                         welcomeSection.style.display = 'block';
-                    }, 2000);
+                    }, 1500);
                 } else {
                     showPasswordStatus('Incorrect password. Please try again.', 'error');
                 }
@@ -769,6 +760,13 @@
             passwordSection.style.display = 'none';
             portalSection.style.display = 'none';
             welcomeSection.style.display = 'none';
+            
+            // Add keyboard event for password input
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verifyPassword();
+                }
+            });
         });
     </script>
 </body>
