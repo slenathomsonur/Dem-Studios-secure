@@ -6,6 +6,7 @@
     <title>14592 Studios X Dem Studios - Secure Access</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -384,6 +385,65 @@
             border-color: rgba(255, 255, 255, 0.5);
         }
         
+        .safe-list-section {
+            display: none;
+            text-align: center;
+        }
+        
+        .qr-codes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .qr-code-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .qr-code-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+        
+        .qr-code-image {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 15px;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .qr-code-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .qr-code-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+        
+        .qr-code-role {
+            font-size: 0.9rem;
+            color: #cccccc;
+            margin-bottom: 5px;
+        }
+        
+        .qr-code-id {
+            font-size: 0.8rem;
+            color: #999999;
+            font-family: monospace;
+        }
+        
         @media (max-width: 768px) {
             .logo {
                 font-size: 2.5rem;
@@ -404,6 +464,10 @@
             
             .scanner-controls {
                 flex-direction: column;
+            }
+            
+            .qr-codes-container {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             }
         }
     </style>
@@ -453,11 +517,37 @@
                             <button class="btn" id="stopScannerBtn">
                                 <i class="fas fa-stop"></i> STOP SCANNER
                             </button>
+                            <button class="btn" id="viewSafeListBtn">
+                                <i class="fas fa-list"></i> SAFE CODES
+                            </button>
                         </div>
                     </div>
                 </div>
                 
                 <div class="status-message" id="statusMessage"></div>
+            </div>
+        </div>
+        
+        <!-- Safe List Section -->
+        <div class="safe-list-section" id="safeListSection">
+            <div class="header">
+                <div class="logo">14592 Studios X Dem Studios</div>
+                <div class="subtitle">SAFE QR CODES LIST</div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-title">Authorized QR Codes</div>
+                <p style="text-align: center; margin-bottom: 20px; color: #cccccc;">These are the only accepted QR codes. Scan any of these to gain access.</p>
+                
+                <div class="qr-codes-container" id="qrCodesContainer">
+                    <!-- QR codes will be generated here -->
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="backToScannerFromListBtn">
+                        <i class="fas fa-arrow-left"></i> BACK TO SCANNER
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -518,7 +608,7 @@
         </div>
         
         <div class="footer">
-            &copy; 2025 14592 Studios X Dem Studios. All rights reserved. | Secure Access System v4.0 By Alpha technologies
+            &copy; 2023 14592 Studios X Dem Studios. All rights reserved. | Secure Access System v4.0
         </div>
     </div>
 
@@ -526,6 +616,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // DOM elements
             const scannerSection = document.getElementById('scannerSection');
+            const safeListSection = document.getElementById('safeListSection');
             const passwordSection = document.getElementById('passwordSection');
             const welcomeSection = document.getElementById('welcomeSection');
             const portalSection = document.getElementById('portalSection');
@@ -535,9 +626,12 @@
             const qrVideo = document.getElementById('qr-video');
             const qrCanvas = document.getElementById('qr-canvas');
             const canvasContext = qrCanvas.getContext('2d');
+            const qrCodesContainer = document.getElementById('qrCodesContainer');
             
             const startScannerBtn = document.getElementById('startScannerBtn');
             const stopScannerBtn = document.getElementById('stopScannerBtn');
+            const viewSafeListBtn = document.getElementById('viewSafeListBtn');
+            const backToScannerFromListBtn = document.getElementById('backToScannerFromListBtn');
             const statusMessage = document.getElementById('statusMessage');
             
             const passwordInput = document.getElementById('passwordInput');
@@ -550,17 +644,88 @@
             const backToWelcomeBtn = document.getElementById('backToWelcomeBtn');
             const portalFrame = document.getElementById('portalFrame');
             
-            // Valid QR codes and passwords
+            // Valid QR codes based on the PDF IDs
             const validCodes = {
-                '14592-DEM-ACCESS-2023': { password: 'secure123', name: 'Authorized User' },
-                'DEM-STUDIOS-ADMIN': { password: 'admin2023', name: 'Administrator' },
-                '14592-ACCESS-CODE': { password: 'access2023', name: 'Team Member' }
+                '986-6943-223': { 
+                    password: 'secure123', 
+                    name: 'JOSIAH WILKE', 
+                    role: '14592 STUDIOS OWNER' 
+                },
+                '435-1212-809': { 
+                    password: 'secure123', 
+                    name: 'ADRIAN BROOKS', 
+                    role: 'DEM STUDIOS OWNER' 
+                },
+                '098-0590-997': { 
+                    password: 'secure123', 
+                    name: 'SHANMUKH PUVVADA', 
+                    role: 'ORIGAMIX OWNER' 
+                },
+                '211-4545-977': { 
+                    password: 'secure123', 
+                    name: 'JAMES KENDALL', 
+                    role: 'WORKER ORIGAMIX' 
+                },
+                '067-6677-896': { 
+                    password: 'secure123', 
+                    name: 'RICHARD ORTIZ', 
+                    role: 'DEM STUDIOS WORKER' 
+                }
             };
             
             let stream = null;
             let scanning = false;
             let scanAnimationFrame;
             let currentCode = null;
+            
+            // Generate QR codes for safe list
+            function generateQRCodes() {
+                qrCodesContainer.innerHTML = '';
+                
+                Object.keys(validCodes).forEach(id => {
+                    const user = validCodes[id];
+                    const qrItem = document.createElement('div');
+                    qrItem.className = 'qr-code-item';
+                    
+                    const qrImage = document.createElement('div');
+                    qrImage.className = 'qr-code-image';
+                    qrImage.id = `qr-${id}`;
+                    
+                    const name = document.createElement('div');
+                    name.className = 'qr-code-name';
+                    name.textContent = user.name;
+                    
+                    const role = document.createElement('div');
+                    role.className = 'qr-code-role';
+                    role.textContent = user.role;
+                    
+                    const idNum = document.createElement('div');
+                    idNum.className = 'qr-code-id';
+                    idNum.textContent = `ID: ${id}`;
+                    
+                    qrItem.appendChild(qrImage);
+                    qrItem.appendChild(name);
+                    qrItem.appendChild(role);
+                    qrItem.appendChild(idNum);
+                    
+                    qrCodesContainer.appendChild(qrItem);
+                    
+                    // Generate QR code
+                    QRCode.toCanvas(document.getElementById(`qr-${id}`), id, {
+                        width: 150,
+                        margin: 1,
+                        color: {
+                            dark: '#000000',
+                            light: '#FFFFFF'
+                        }
+                    }, function(error) {
+                        if (error) console.error(error);
+                    });
+                });
+            }
+            
+            // Initialize QR codes
+            generateQRCodes();
             
             // Start scanner button
             startScannerBtn.addEventListener('click', function() {
@@ -570,6 +735,18 @@
             // Stop scanner button
             stopScannerBtn.addEventListener('click', function() {
                 stopScanner();
+            });
+            
+            // View safe list button
+            viewSafeListBtn.addEventListener('click', function() {
+                scannerSection.style.display = 'none';
+                safeListSection.style.display = 'block';
+            });
+            
+            // Back to scanner from list button
+            backToScannerFromListBtn.addEventListener('click', function() {
+                safeListSection.style.display = 'none';
+                scannerSection.style.display = 'block';
             });
             
             // Verify password button
@@ -757,6 +934,7 @@
             
             // Initialize UI state
             stopScannerBtn.disabled = true;
+            safeListSection.style.display = 'none';
             passwordSection.style.display = 'none';
             portalSection.style.display = 'none';
             welcomeSection.style.display = 'none';
