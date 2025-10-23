@@ -168,18 +168,6 @@
             object-fit: cover;
         }
         
-        .canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        
-        #qr-canvas {
-            display: none;
-        }
-        
         .btn {
             width: 100%;
             padding: 15px;
@@ -390,6 +378,22 @@
             flex: 1;
         }
         
+        .password-section {
+            display: none;
+            text-align: center;
+        }
+        
+        .password-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ffd93d;
+        }
+        
+        .password-instructions {
+            margin-bottom: 20px;
+            color: #a0a0e0;
+        }
+        
         @media (max-width: 768px) {
             .logo {
                 font-size: 2.5rem;
@@ -436,9 +440,6 @@
                         
                         <div class="video-container" id="videoContainer">
                             <video id="qr-video" playsinline></video>
-                            <div class="canvas-container">
-                                <canvas id="qr-canvas"></canvas>
-                            </div>
                         </div>
                         
                         <div class="scanner-controls">
@@ -490,6 +491,31 @@
             </div>
         </div>
         
+        <!-- Password Section -->
+        <div class="password-section" id="passwordSection">
+            <div class="header">
+                <div class="logo">Dem Studios</div>
+                <div class="subtitle">SECURITY VERIFICATION</div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-title">Enter Security Password</div>
+                <p class="password-instructions">Please enter your security password to continue.</p>
+                
+                <div class="input-group">
+                    <label for="passwordInput">Password</label>
+                    <input type="password" id="passwordInput" placeholder="Enter your password">
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" id="verifyPasswordBtn">VERIFY PASSWORD</button>
+                    <button class="btn btn-tertiary" id="backToScannerFromPasswordBtn">BACK TO SCANNER</button>
+                </div>
+                
+                <div class="status-message" id="passwordStatusMessage"></div>
+            </div>
+        </div>
+        
         <!-- Welcome Section -->
         <div class="welcome-message" id="welcomeSection">
             <div class="welcome-title">ACCESS GRANTED!</div>
@@ -530,18 +556,22 @@
         document.addEventListener('DOMContentLoaded', function() {
             // DOM elements
             const scannerSection = document.getElementById('scannerSection');
+            const passwordSection = document.getElementById('passwordSection');
             const welcomeSection = document.getElementById('welcomeSection');
             const portalSection = document.getElementById('portalSection');
             
             const scannerPlaceholder = document.getElementById('scannerPlaceholder');
             const videoContainer = document.getElementById('videoContainer');
             const qrVideo = document.getElementById('qr-video');
-            const qrCanvas = document.getElementById('qr-canvas');
-            const canvasContext = qrCanvas.getContext('2d');
             
             const startScannerBtn = document.getElementById('startScannerBtn');
             const stopScannerBtn = document.getElementById('stopScannerBtn');
             const statusMessage = document.getElementById('statusMessage');
+            
+            const passwordInput = document.getElementById('passwordInput');
+            const verifyPasswordBtn = document.getElementById('verifyPasswordBtn');
+            const backToScannerFromPasswordBtn = document.getElementById('backToScannerFromPasswordBtn');
+            const passwordStatusMessage = document.getElementById('passwordStatusMessage');
             
             const enterPortalBtn = document.getElementById('enterPortalBtn');
             const backToScannerBtn = document.getElementById('backToScannerBtn');
@@ -550,16 +580,17 @@
             
             // Valid users
             const validUsers = {
-                'adrian': { name: 'ADRIAN BROOKS', role: 'DEM STUDIOS OWNER' },
-                'richard': { name: 'RICHARD ORTIZ', role: 'DEM STUDIOS WORKER' },
-                'josiah': { name: 'JOSIAH WILKE', role: '14592 STUDIOS OWNER' },
-                'shanmukh': { name: 'SHANMUKH PUVVADA', role: 'ORIGAMIX OWNER' },
-                'james': { name: 'JAMES KENDALL', role: 'ORIGAMIX WORKER' }
+                'adrian': { name: 'ADRIAN BROOKS', role: 'DEM STUDIOS OWNER', password: 'demo123' },
+                'richard': { name: 'RICHARD ORTIZ', role: 'DEM STUDIOS WORKER', password: 'demo123' },
+                'josiah': { name: 'JOSIAH WILKE', role: '14592 STUDIOS OWNER', password: 'demo123' },
+                'shanmukh': { name: 'SHANMUKH PUVVADA', role: 'ORIGAMIX OWNER', password: 'demo123' },
+                'james': { name: 'JAMES KENDALL', role: 'ORIGAMIX WORKER', password: 'demo123' }
             };
             
             let stream = null;
             let scanning = false;
             let scanInterval;
+            let currentUser = null;
             
             // Start scanner button
             startScannerBtn.addEventListener('click', function() {
@@ -569,6 +600,19 @@
             // Stop scanner button
             stopScannerBtn.addEventListener('click', function() {
                 stopScanner();
+            });
+            
+            // Verify password button
+            verifyPasswordBtn.addEventListener('click', function() {
+                verifyPassword();
+            });
+            
+            // Back to scanner from password button
+            backToScannerFromPasswordBtn.addEventListener('click', function() {
+                passwordSection.style.display = 'none';
+                scannerSection.style.display = 'block';
+                passwordInput.value = '';
+                passwordStatusMessage.style.display = 'none';
             });
             
             // Enter portal button
@@ -582,6 +626,7 @@
             backToScannerBtn.addEventListener('click', function() {
                 welcomeSection.style.display = 'none';
                 scannerSection.style.display = 'block';
+                currentUser = null;
             });
             
             // Back to welcome button
@@ -664,22 +709,44 @@
                 }
             }
             
-            // Verify user and grant access
+            // Verify user and request password
             function verifyUser(userId) {
                 if (validUsers[userId]) {
-                    const user = validUsers[userId];
-                    showStatus(`Access granted! Welcome ${user.name}`, 'success');
+                    currentUser = validUsers[userId];
+                    showStatus(`QR Code detected! Welcome ${currentUser.name}`, 'success');
                     
                     // Stop scanner
                     stopScanner();
                     
-                    // Show welcome message after delay
+                    // Show password section after delay
                     setTimeout(function() {
                         scannerSection.style.display = 'none';
-                        welcomeSection.style.display = 'block';
+                        passwordSection.style.display = 'block';
                     }, 2000);
                 } else {
                     showStatus('ACCESS DENIED: User not recognized!', 'error');
+                }
+            }
+            
+            // Verify password
+            function verifyPassword() {
+                const password = passwordInput.value;
+                
+                if (!password) {
+                    showPasswordStatus('Please enter your password.', 'error');
+                    return;
+                }
+                
+                if (currentUser && password === currentUser.password) {
+                    showPasswordStatus('Password verified successfully!', 'success');
+                    
+                    // Show welcome message after delay
+                    setTimeout(function() {
+                        passwordSection.style.display = 'none';
+                        welcomeSection.style.display = 'block';
+                    }, 2000);
+                } else {
+                    showPasswordStatus('Incorrect password. Please try again.', 'error');
                 }
             }
             
@@ -690,8 +757,16 @@
                 statusMessage.style.display = 'block';
             }
             
+            // Function to show password status messages
+            function showPasswordStatus(message, type) {
+                passwordStatusMessage.textContent = message;
+                passwordStatusMessage.className = 'status-message ' + type;
+                passwordStatusMessage.style.display = 'block';
+            }
+            
             // Initialize UI state
             stopScannerBtn.disabled = true;
+            passwordSection.style.display = 'none';
             portalSection.style.display = 'none';
             welcomeSection.style.display = 'none';
         });
